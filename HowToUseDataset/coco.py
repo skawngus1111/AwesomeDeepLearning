@@ -24,18 +24,9 @@ class COCODetection(Dataset) :
         # to remove not annotated image idx
         self.no_anno_list = []
         for idx in whole_image_ids:
-            flag = 1
             annotations_ids = self.coco.getAnnIds(imgIds=idx, iscrowd=False)
-            coco_annotations = self.coco.loadAnns(annotations_ids)
             if len(annotations_ids) == 0 : self.no_anno_list.append(idx)
-            else:
-                for anns in coco_annotations :
-                    if anns['category_id'] in [12, 26, 29, 30, 45, 66, 68, 69, 71, 83, 91] :
-                        self.no_anno_list.append(idx)
-                        flag = 0
-                        break
-                if flag :
-                    self.image_ids.append(idx)
+            else: self.image_ids.append(idx)
 
         self.load_classes()
 
@@ -75,6 +66,9 @@ class COCODetection(Dataset) :
 
             # some annotations have basically no width / height, skip them
             if a['bbox'][2] < 1 or a['bbox'][3] < 1:
+                continue
+
+            if a['category_id'] in [12, 26, 29, 30, 45, 66, 68, 69, 71, 83, 91]:
                 continue
 
             annotation = np.zeros((1, 6))
@@ -122,9 +116,10 @@ class COCODetection(Dataset) :
 
         p = PatchCollection(polygons, facecolor='none', edgecolors=colors, linewidths=2)
         ax.add_collection(p)
+        plt.axis('off'); plt.xticks([]); plt.yticks([])
 
 if __name__ == '__main__' :
-    # root_dir = DATASET_DIR
+    root_dir = DATASET_DIR
     coco = COCODetection(root_dir, image_set='train2017', viz=True)
     loader = DataLoader(coco, shuffle=False)
     for idx, (image, target) in enumerate(loader) :
