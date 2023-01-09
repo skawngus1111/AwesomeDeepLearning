@@ -9,4 +9,7 @@ Various model architectures and results are available.
 
 |Model|TOP-1 Error|TOP-5 Error|
 |------|---|---|
-|VGG11|training...|training...|
+|VGG11|14.56|0.99|
+|VGG13|training...|training...|
+|VGG16|training...|training...|
+|VGG19|training...|training...|
