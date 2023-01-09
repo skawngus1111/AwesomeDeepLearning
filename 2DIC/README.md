@@ -16,4 +16,4 @@ Various model architectures and results are available.
 |VGG11_bn|14.56|0.99|
 |VGG13_bn|12.81|0.71|
 |VGG16_bn|12.76|0.70|
-|VGG19_bn|training...|training...|
+|VGG19_bn|12.57|0.90|
