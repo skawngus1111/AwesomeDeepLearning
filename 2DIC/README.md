@@ -7,7 +7,7 @@ Various model architectures and results are available.
 
 ## CIFAR10
 
-|Model|TOP-1 Error|TOP-5 Error|
+|Model|TOP-1 Error (%)|TOP-5 Error (%)|
 |------|---|---|
 |VGG11|training...|training...|
 |VGG13|training...|training...|
@@ -15,5 +15,5 @@ Various model architectures and results are available.
 |VGG19|training...|training...|
 |VGG11_bn|14.56|0.99|
 |VGG13_bn|12.81|0.71|
-|VGG16_bn|training...|training...|
+|VGG16_bn|12.76|0.70|
 |VGG19_bn|training...|training...|
