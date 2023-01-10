@@ -9,7 +9,16 @@ Various model architectures and results are available.
 
 |Model|TOP-1 Error (%)|TOP-5 Error (%)|
 |------|---|---|
-|VGG11|14.56|0.99|
-|VGG13|12.81|0.71|
-|VGG16|12.76|0.70|
-|VGG19|12.57|0.90|
+|VGG11|12.67|0.56|
+|VGG13|10.41|0.39|
+|VGG16|10.30|0.44|
+|VGG19|9.98 |0.46|
+
+## CIFAR100
+
+|Model|TOP-1 Error (%)|TOP-5 Error (%)|
+|------|---|---|
+|VGG11|39.58|16.13|
+|VGG13|36.18|14.05|
+|VGG16|33.98|13.24|
+|VGG19|34.02|13.08|
