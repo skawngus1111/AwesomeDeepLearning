@@ -22,3 +22,5 @@ Various model architectures and results are available.
 |VGG13|36.18|14.05|
 |VGG16|33.98|13.24|
 |VGG19|34.02|13.08|
+
+<img width="80%" src="https://user-images.githubusercontent.com/77310264/211721822-e6ab3e1e-5212-4a79-9f80-eb27d406ab25.png"/>
