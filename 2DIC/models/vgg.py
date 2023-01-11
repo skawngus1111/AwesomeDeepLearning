@@ -22,7 +22,7 @@ class BasicConv(nn.Module) :
         return self.conv(x)
 
 class VGG(nn.Module) :
-    def __init__(self, model, num_channels=3, num_classes=1000):
+    def __init__(self, model, image_size=224, num_channels=3, num_classes=1000):
         super(VGG, self).__init__()
 
         self.in_channels = num_channels
@@ -42,9 +42,9 @@ class VGG(nn.Module) :
 
         self.feature = self._make_layer(configuration)
         self.fc = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 4096), nn.Dropout(p=0.5),
-            nn.Linear(4096, 4096), nn.Dropout(p=0.5),
-            nn.Linear(4096, self.num_classes)
+            nn.Linear(512 * image_size//32 * image_size//32, 512), nn.ReLU(inplace=True), nn.Dropout(p=0.5),
+            nn.Linear(512, 512), nn.ReLU(inplace=True), nn.Dropout(p=0.5),
+            nn.Linear(512, self.num_classes)
         )
 
     def forward(self, x):
@@ -65,17 +65,17 @@ class VGG(nn.Module) :
 
         return nn.Sequential(*layers)
 
-def vgg11() :
-    return VGG(model='VGG11')
+def vgg11(image_size=224, num_channels=3, num_classes=1000) :
+    return VGG('VGG11', image_size, num_channels, num_classes)
 
-def vgg13() :
-    return VGG(model='VGG13')
+def vgg13(image_size=224, num_channels=3, num_classes=1000) :
+    return VGG('VGG13', image_size, num_channels, num_classes)
 
-def vgg16() :
-    return VGG(model='VGG16')
+def vgg16(image_size=224, num_channels=3, num_classes=1000) :
+    return VGG('VGG16', image_size, num_channels, num_classes)
 
-def vgg19() :
-    return VGG(model='VGG19')
+def vgg19(image_size=224, num_channels=3, num_classes=1000) :
+    return VGG('VGG19', image_size, num_channels, num_classes)
 
 if __name__=='__main__' :
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
