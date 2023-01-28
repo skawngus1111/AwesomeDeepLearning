@@ -6,6 +6,7 @@
 - [ ] learning rate scheduler를 다양하게 적용할 수 있게 변경 + 어떤 LRS를 사용했는 지 저장 폴더에 표기
 - [ ] 성능 평가 시 FLOPs와 training/inference speed를 추가
 - [ ] train/evaluation 터미널 명령어 작성
+- [ ] train log 파일 저장
 
 # Model Zoo
 
