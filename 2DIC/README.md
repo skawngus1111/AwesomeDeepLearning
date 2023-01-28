@@ -3,6 +3,7 @@
 
 # To-do-list
 - [ ] 사용자가 args로 넘겨주는 특정 에폭별 체크포인트 저장 (default = 10 epoch)
+- [ ] learning rate scheduler를 다양하게 적용할 수 있게 변경 + 어떤 LRS를 사용했는 지 저장 폴더에 표기
 
 # Model Zoo
 
