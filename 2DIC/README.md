@@ -10,7 +10,9 @@
 - 다양한 Classification 데이터셋으로 실험
     - [ ] CIFAR10/CIFAR100
     - [ ] STL10
+    - [ ] ImageNet
 - [ ] 특정 Checkpoint부터 다시 retrain할 수 있는 코드 추가
+- [ ] Loss 그래프 그리는 코드 추가
 
 # Model Zoo
 
