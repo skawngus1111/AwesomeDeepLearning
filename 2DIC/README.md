@@ -1,5 +1,8 @@
 # Introduction
-AwesomeDeepLearning for 2D Image Classfication (2DIC) is an image classification library based on Pytorch. 
+2D Image Classfication (2DIC)을 위한 AwesomeDeepLearning은 논문의 구현 및 성능 재현성을 위해 만들어진 프로젝트 페이지입니다.
+
+# To-do-list
+- [] 사용자가 args로 넘겨주는 특정 에폭별 체크포인트 저장 (default = 10 epoch)
 
 # Model Zoo
 
