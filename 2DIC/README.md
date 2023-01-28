@@ -7,6 +7,9 @@
 - [ ] 성능 평가 시 FLOPs와 training/inference speed를 추가
 - [ ] train/evaluation 터미널 명령어 작성
 - [ ] train log 파일 저장
+- 다양한 Classification 데이터셋으로 실험
+    - [ ] CIFAR10/CIFAR100
+    - [ ] STL10
 
 # Model Zoo
 
