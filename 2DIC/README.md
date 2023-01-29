@@ -13,6 +13,7 @@
     - [ ] ImageNet
 - [ ] 특정 Checkpoint부터 다시 retrain할 수 있는 코드 추가
 - [ ] Loss 그래프 그리는 코드 추가
+- [ ] 재현성 검사
 
 # Model Zoo
 
