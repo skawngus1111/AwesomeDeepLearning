@@ -2,13 +2,13 @@
 2D Image Classfication (2DIC)을 위한 AwesomeDeepLearning은 논문의 구현 및 성능 재현성을 위해 만들어진 프로젝트 페이지입니다.
 
 # To-do-list
-- [ ] 사용자가 args로 넘겨주는 특정 에폭별 체크포인트 저장 (default = 10 epoch)
+- [X] 사용자가 args로 넘겨주는 특정 에폭별 체크포인트 저장 (default = 10 epoch)
 - [ ] learning rate scheduler를 다양하게 적용할 수 있게 변경 + 어떤 LRS를 사용했는 지 저장 폴더에 표기
 - [ ] 성능 평가 시 FLOPs와 training/inference speed를 추가
 - [ ] train/evaluation 터미널 명령어 작성
 - [ ] train log 파일 저장
 - 다양한 Classification 데이터셋으로 실험
-    - [ ] CIFAR10/CIFAR100
+    - [X] CIFAR10/CIFAR100
     - [ ] STL10
     - [ ] ImageNet
 - [ ] 특정 Checkpoint부터 다시 retrain할 수 있는 코드 추가
