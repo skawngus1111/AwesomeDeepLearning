@@ -22,12 +22,12 @@ Various model architectures and results are available.
 
 ## CIFAR10
 
-|Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|
-|------|---|---|---|---|
-|VGG11|11.86|0.79|9.76M|154.03M|
-|VGG13|10.41|0.39|9.94M|229.92M|
-|VGG16|10.30|0.44|15.25M|314.96M|
-|VGG19|9.98 |0.46|9.76M|154.03M|
+|Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|training time per epoch (s)|inference time (s)|
+|------|---|---|---|---|---|---|
+|VGG11|11.86|0.79|9.76M|154.03M|7s|---|
+|VGG13|10.41|0.39|9.94M|229.92M|---|---|
+|VGG16|10.30|0.44|15.25M|314.96M|13s|---|
+|VGG19|9.98 |0.46|9.76M|154.03M|16s|---|
 
 ## CIFAR100
 
