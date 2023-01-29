@@ -22,7 +22,7 @@ Various model architectures and results are available.
 ## CIFAR10
 
 |Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|
-|------|---|---|
+|------|---|---|---|---|
 |VGG11|11.86|0.79|9.76M|154.03M|
 |VGG13|10.41|0.39|9.94M|229.92M|
 |VGG16|10.30|0.44|15.25M|314.96M|
