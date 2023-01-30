@@ -9,7 +9,7 @@
 - [ ] train log 파일 저장
 - 다양한 Classification 데이터셋으로 실험
     - [X] CIFAR10/CIFAR100
-    - [ ] STL10
+    - [X] STL10
     - [ ] ImageNet
 - [ ] 특정 Checkpoint부터 다시 retrain할 수 있는 코드 추가
 - [ ] Loss 그래프 그리는 코드 추가
@@ -31,11 +31,27 @@ Various model architectures and results are available.
 
 ## CIFAR100
 
-|Model|TOP-1 Error (%)|TOP-5 Error (%)|
-|------|---|---|
-|VGG11|39.58|16.13|
-|VGG13|36.18|14.05|
-|VGG16|33.98|13.24|
-|VGG19|34.02|13.08|
+|Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|training time per epoch (s)|inference time (s)|
+|:------:|:---:|:---:|:---:|:---:|:---:|:---:|
+|VGG11|11.86|0.79|9.76M|154.03M|7s|0.09s (0.0115s)|
+|VGG13|10.41|0.39|9.94M|229.92M|10s|0.13s (0.0162s)|
+|VGG16|10.30|0.44|15.25M|314.96M|13s|0.17s (0.0197s)|
+|VGG19|9.98 |0.46|9.76M|154.03M|16s|0.21s|
 
-<img width="80%" src="https://user-images.githubusercontent.com/77310264/211721822-e6ab3e1e-5212-4a79-9f80-eb27d406ab25.png"/>
+## STL10
+
+|Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|training time per epoch (s)|inference time (s)|
+|:------:|:---:|:---:|:---:|:---:|:---:|:---:|
+|VGG11|11.86|0.79|9.76M|154.03M|7s|0.09s (0.0115s)|
+|VGG13|10.41|0.39|9.94M|229.92M|10s|0.13s (0.0162s)|
+|VGG16|10.30|0.44|15.25M|314.96M|13s|0.17s (0.0197s)|
+|VGG19|9.98 |0.46|9.76M|154.03M|16s|0.21s|
+
+## ImageNet
+
+|Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|training time per epoch (s)|inference time (s)|
+|:------:|:---:|:---:|:---:|:---:|:---:|:---:|
+|VGG11|11.86|0.79|9.76M|154.03M|7s|0.09s (0.0115s)|
+|VGG13|10.41|0.39|9.94M|229.92M|10s|0.13s (0.0162s)|
+|VGG16|10.30|0.44|15.25M|314.96M|13s|0.17s (0.0197s)|
+|VGG19|9.98 |0.46|9.76M|154.03M|16s|0.21s|
