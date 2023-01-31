@@ -22,6 +22,8 @@ Various model architectures and results are available.
 
 ## CIFAR10
 
+`CUDA_VISIBLE_DEVICES=0 python main.py --num_workers 8 --data_path TwoDIC_dataset/ --save_path TwoDIC_model_weight/ --data_type CIFAR10 --batch_size 256 --criterion CCE --final_epoch 200 --optimizer_name SGD --lr 0.1 --LRS_name CALRS --model_name VGG11 --linear_node 512 --train --step 100`
+
 |Model|TOP-1 Error (%)|TOP-5 Error (%)|Parameters (M)|MAC (M)|training time per epoch (s)|inference time (s)|
 |:------:|:---:|:---:|:---:|:---:|:---:|:---:|
 |VGG11|11.86|0.79|9.76M|154.03M|7s|0.09s (0.0115s)|
