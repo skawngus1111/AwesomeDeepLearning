@@ -16,6 +16,7 @@
 - [X] 재현성 검사
 - [X] inference만 하는 코드 추가
 - [ ] train configuration.yaml 파일 만들기
+- [ ] 병렬학습(Distributed Data Parallel) 코드 추가
 
 # Model Zoo
 
