@@ -2,6 +2,8 @@ import os
 import sys
 import random
 
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+
 import torch
 import torch.nn as nn
 import torchvision.datasets as datasets
@@ -14,6 +16,8 @@ from ptflops import get_model_complexity_info
 
 from utils.get_functions import *
 from utils.load_functions import *
+from DA.augmentation_forward import augment_forward
+from DA.augmentation_criterion import augment_criterion
 
 class BaseClassificationExperiment(object) :
     def __init__(self, args):
@@ -24,6 +28,8 @@ class BaseClassificationExperiment(object) :
         self.fix_seed(self.device)
         self.history_generator()
         self.scaler = torch.cuda.amp.GradScaler()
+        self.start, self.end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        self.inference_time_list = []
         # self.configuration = yaml.safe_load(open(f'TwoDIC/configuration_files/configuration.yml'))
 
         print("STEP1. Load {} Dataset Loader...".format(args.data_type))
@@ -37,6 +43,12 @@ class BaseClassificationExperiment(object) :
         elif args.data_type == 'CIFAR10':
             train_dataset = datasets.CIFAR10(args.dataset_dir, train=True, transform=self.transform_generator('train'), download=True)
             test_dataset = datasets.CIFAR10(args.dataset_dir, train=False, transform=self.transform_generator('test'), download=True)
+        elif args.data_type == 'CIFAR100':
+            train_dataset = datasets.CIFAR100(args.dataset_dir, train=True, transform=self.transform_generator('train'), download=True)
+            test_dataset = datasets.CIFAR100(args.dataset_dir, train=False, transform=self.transform_generator('test'), download=True)
+        elif args.data_type == 'STL10':
+            train_dataset = datasets.STL10(args.dataset_dir, split='train', transform=self.transform_generator('train'), download=True)
+            test_dataset = datasets.STL10(args.dataset_dir, split='test', transform=self.transform_generator('test'), download=True)
         else:
             print("You choose wrong dataset.")
             sys.exit()
@@ -100,6 +112,7 @@ class BaseClassificationExperiment(object) :
         print("criterion : {}".format(self.criterion))
         print("batch size : {}".format(self.args.batch_size))
         print("image size : ({}, {}, {})".format(self.args.image_size, self.args.image_size, self.args.num_channels))
+        print("DA : {}".format(self.args.augment))
         # print('{:<30}  {:<8}'.format('Computational complexity (MAC): ', self.complexity[0]))
         # print('{:<30}  {:<8}'.format('Number of parameters: ', self.complexity[1]))
 
@@ -124,22 +137,14 @@ class BaseClassificationExperiment(object) :
         for param_group in optimizer.param_groups:
             return param_group['lr']
 
-    def _apply_transform(self, image, target):
+    def forward(self, image, target, mode):
         if self.args.distributed: image, target = image.cuda(), target.cuda()
         else: image, target = image.to(self.device), target.to(self.device)
 
-        return image, target
-
-    def _calculate_criterion(self, y_pred, y_true):
-        loss = self.criterion(y_pred, y_true)
-
-        return loss
-
-    def forward(self, image, target):
-        image, target = self._apply_transform(image, target)
+        augment_ = augment_forward(self.args.augment, mode)(image, target) # image, target, etc ...
         with torch.cuda.amp.autocast():
-            output = self.model(image)
-            loss = self._calculate_criterion(output, target)
+            output = self.model(augment_[0])
+            loss = augment_criterion(self.args.augment, mode)(self.criterion, output, augment_[1:]) # target, etc ...
 
         return loss, output, target
 

@@ -27,13 +27,16 @@ def TwoDIC_main(args) :
         args.num_classes = 1000
         args.crop_padding = 32
     elif args.data_type == 'CIFAR10' or args.data_type == 'CIFAR100':
-        # CIFARTrainer(args)
         args.image_size = 32
         args.num_channels = 3
         if args.data_type == 'CIFAR10': args.num_classes = 10
         elif args.data_type == 'CIFAR100': args.num_classes = 100
         args.crop_padding = 4
-    elif args.data_type == 'STL10': STL10Trainer(args)
+    elif args.data_type == 'STL10':
+        args.image_size = 96
+        args.num_channels = 3
+        args.num_classes = 10
+        args.crop_padding = 12
 
     args.distributed = False
     if args.multiprocessing_distributed and args.train:
@@ -71,7 +74,7 @@ def main_worker(gpu,ngpus_per_node, args):
 
 if __name__=='__main__' :
     parser = argparse.ArgumentParser(description='Following are the arguments that can be passed form the terminal itself!')
-    parser.add_argument('--data_path', type=str, default='TwoDIC/TwoDIC_dataset')
+    parser.add_argument('--data_path', type=str, default='')
     parser.add_argument('--data_type', type=str, required=True, choices=['ImageNet', 'CIFAR10', 'CIFAR100', 'STL10'])
     parser.add_argument('--model_name', type=str, required=True, choices=['VGG11', 'VGG13', 'VGG16', 'VGG19',
                                                                           'ResNet',
@@ -99,6 +102,7 @@ if __name__=='__main__' :
     parser.add_argument('--start_epoch', type=int, default=1)
     parser.add_argument('--final_epoch', type=int, default=200)
     parser.add_argument('--linear_node', type=int, default=4096)
+    parser.add_argument('--augment', type=str, default='original', choices=['original', 'MixUp'])
 
     # Optimizer Configuration
     parser.add_argument('--optimizer_name', type=str, default='SGD')

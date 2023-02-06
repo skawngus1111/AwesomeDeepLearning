@@ -62,7 +62,7 @@ class ImageNetExperiment(BaseClassificationExperiment) :
         correct_top1, correct_top5 = 0, 0
 
         for batch_idx, (image, target) in enumerate(self.train_loader):
-            loss, output, target = self.forward(image, target)
+            loss, output, target = self.forward(image, target, mode='train')
             self.backward(loss)
 
             total_loss += loss.item() * image.size(0)
@@ -95,7 +95,7 @@ class ImageNetExperiment(BaseClassificationExperiment) :
                     print("EPOCH {} | {}/{}({}%) COMPLETE".format(epoch, batch_idx + 1, len(self.test_loader), np.round((batch_idx + 1) / len(self.test_loader) * 100), 4))
 
                 if self.args.final_epoch == epoch : self.start.record()
-                loss, output, target = self.forward(image, target)
+                loss, output, target = self.forward(image, target, mode='val')
                 if self.args.final_epoch == epoch:
                     self.end.record()
                     torch.cuda.synchronize()

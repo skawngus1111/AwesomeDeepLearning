@@ -100,14 +100,15 @@ def get_criterion(criterion) :
     return criterion
 
 def get_save_path(args):
-    save_model_path = '{}_{}x{}_{}_{}_{}({}_{})_{}'.format(args.data_type,
-                                                           str(args.image_size), str(args.image_size),
-                                                           str(args.batch_size),
-                                                           args.model_name,
-                                                           args.optimizer_name,
-                                                           args.lr,
-                                                           str(args.final_epoch).zfill(3),
-                                                           str(args.LRS_name))
+    save_model_path = '{}_{}x{}_{}_{}_{}({}_{})_{}/{}'.format(args.data_type,
+                                                              str(args.image_size), str(args.image_size),
+                                                              str(args.batch_size),
+                                                              args.model_name,
+                                                              args.optimizer_name,
+                                                              args.lr,
+                                                              str(args.final_epoch).zfill(3),
+                                                              str(args.LRS_name),
+                                                              args.augment)
 
     model_dirs = os.path.join(args.save_path, save_model_path)
     if not os.path.exists(os.path.join(model_dirs, 'model_weights')): os.makedirs(os.path.join(model_dirs, 'model_weights'))
