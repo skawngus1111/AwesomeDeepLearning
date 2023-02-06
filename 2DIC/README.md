@@ -17,6 +17,7 @@
 - [X] inference만 하는 코드 추가
 - [ ] train configuration.yaml 파일 만들기
 - [X] 병렬학습(Distributed Data Parallel) 코드 추가
+- [ ] Best Top1 & Top5 Error Epoch 별로 표시
 - Data Augmentation 적용
     - [X] MixUp
 
