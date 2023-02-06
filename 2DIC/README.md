@@ -18,7 +18,7 @@
 - [ ] train configuration.yaml 파일 만들기
 - [X] 병렬학습(Distributed Data Parallel) 코드 추가
 - Data Augmentation 적용
-    - [ ] MixUp
+    - [X] MixUp
 
 # Model Zoo
 
