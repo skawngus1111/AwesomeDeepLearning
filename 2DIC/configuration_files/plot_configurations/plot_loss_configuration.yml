@@ -1,8 +1,0 @@
-train_color: '#2600ff'
-test_color: '#ff0001'
-
-loss_range: [0.0, 2.0]
-acc_range: [0.0, 1.0]
-
-y_grid: true
-x_grid: false
