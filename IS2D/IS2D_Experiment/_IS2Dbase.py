@@ -1,55 +1,35 @@
 import os
 import sys
-import random
-
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 
-import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
-# import yaml
-
-from models.IC2D_models import IC2D_model
+from models.IS2D_models import IS2D_model
+from dataset.SegDataset.PolypSeg import *
 from common.utils.get_functions import *
-from IC2D.utils.load_functions import *
 from DA.augmentation_forward import augment_forward
 from DA.augmentation_criterion import augment_criterion
 
-class BaseClassificationExperiment(object) :
+class BaseSegmentationExperiment(object):
     def __init__(self, args):
-        super(BaseClassificationExperiment, self).__init__()
+        super(BaseSegmentationExperiment, self).__init__()
 
         self.args = args
+
         self.device = get_deivce()
         self.fix_seed(self.device)
         self.history_generator()
         self.scaler = torch.cuda.amp.GradScaler()
         self.start, self.end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
         self.inference_time_list = []
-        self.best_top1_err, self.best_top5_err = 100, 100
-        # self.configuration = yaml.safe_load(open(f'TwoDIC/configuration_files/configuration.yml'))
+        self.metric_list = ['Loss', 'Accuracy', 'F1 Score', 'Precision', 'Recall', 'IoU']
 
         print("STEP1. Load {} Dataset Loader...".format(args.data_type))
-        if args.data_type == 'ImageNet' :
-            train_dir = os.path.join(args.dataset_dir, '2012', 'train')
-            val_dir = os.path.join(args.dataset_dir, '2012', 'val')
-            json_file = os.path.join(args.dataset_dir, 'imagenet_class_index.json')
-
-            train_dataset = datasets.ImageFolder(train_dir, self.transform_generator('train'))
-            test_dataset = datasets.ImageFolder(val_dir, self.transform_generator('test'))
-        elif args.data_type == 'CIFAR10':
-            train_dataset = datasets.CIFAR10(args.dataset_dir, train=True, transform=self.transform_generator('train'), download=True)
-            test_dataset = datasets.CIFAR10(args.dataset_dir, train=False, transform=self.transform_generator('test'), download=True)
-        elif args.data_type == 'CIFAR100':
-            train_dataset = datasets.CIFAR100(args.dataset_dir, train=True, transform=self.transform_generator('train'), download=True)
-            test_dataset = datasets.CIFAR100(args.dataset_dir, train=False, transform=self.transform_generator('test'), download=True)
-        elif args.data_type == 'STL10':
-            train_dataset = datasets.STL10(args.dataset_dir, split='train', transform=self.transform_generator('train'), download=True)
-            test_dataset = datasets.STL10(args.dataset_dir, split='test', transform=self.transform_generator('test'), download=True)
-        else:
-            print("You choose wrong dataset.")
-            sys.exit()
+        if args.data_type in ['CVC-ClinicDB', 'Kvasir-SEG', 'BKAI-IGH-NeoPolyp'] :
+            train_dataset = PolypImageSegDataset(args.dataset_dir, mode='train', transform=self.transform_generator('train')[0], target_transform=self.transform_generator('train')[1])
+            val_dataset = PolypImageSegDataset(args.dataset_dir, mode='val', transform=self.transform_generator('test')[0], target_transform=self.transform_generator('test')[1])
+            test_dataset = PolypImageSegDataset(args.dataset_dir, mode='test', transform=self.transform_generator('test')[0], target_transform=self.transform_generator('test')[1])
 
         self.train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset) if args.distributed else None
         self.train_loader = DataLoader(train_dataset,
@@ -57,17 +37,19 @@ class BaseClassificationExperiment(object) :
                                        shuffle=(self.train_sampler is None),
                                        num_workers=int((args.num_workers+args.ngpus_per_node-1)/args.ngpus_per_node) if args.distributed else args.num_workers,
                                        pin_memory=True, sampler=self.train_sampler)
+        self.val_loader = DataLoader(val_dataset,
+                                      batch_size=int(args.batch_size / args.ngpus_per_node) if args.distributed else args.batch_size,
+                                      shuffle=False,
+                                      num_workers=int((args.num_workers+args.ngpus_per_node-1)/args.ngpus_per_node) if args.distributed else args.num_workers,
+                                      pin_memory=True)
         self.test_loader = DataLoader(test_dataset,
                                       batch_size=int(args.batch_size / args.ngpus_per_node) if args.distributed else args.batch_size,
                                       shuffle=False,
                                       num_workers=int((args.num_workers+args.ngpus_per_node-1)/args.ngpus_per_node) if args.distributed else args.num_workers,
                                       pin_memory=True)
 
-        print("STEP2. Load 2D Image Classification Model {}...".format(args.model_name))
-        self.model = IC2D_model(args.model_name, args.linear_node, args.image_size, args.num_channels, args.num_classes)
-
-
-        # multiprocess 설정
+        print("STEP2. Load 2D Image Segmentation Model {}...".format(args.model_name))
+        self.model = IS2D_model(args.model_name, args.image_size, args.num_channels, args.num_classes)
         if args.distributed:
             print('Multi GPU activate : {} with DP'.format(torch.cuda.device_count()))
             if args.gpu is not None:
@@ -111,13 +93,6 @@ class BaseClassificationExperiment(object) :
         print("batch size : {}".format(self.args.batch_size))
         print("image size : ({}, {}, {})".format(self.args.image_size, self.args.image_size, self.args.num_channels))
         print("DA : {}".format(self.args.augment))
-        # print('{:<30}  {:<8}'.format('Computational complexity (MAC): ', self.complexity[0]))
-        # print('{:<30}  {:<8}'.format('Number of parameters: ', self.complexity[1]))
-
-    def seed_worker(self, worker_id):
-        worker_seed = torch.initial_seed() % 2 ** 32
-        np.random.seed(worker_seed)
-        random.seed(worker_seed)
 
     def fix_seed(self, device):
         random.seed(4321)
@@ -148,7 +123,6 @@ class BaseClassificationExperiment(object) :
 
     def backward(self, loss):
         self.optimizer.zero_grad()
-        # print(loss)
         self.scaler.scale(loss).backward()
         self.scaler.step(self.optimizer)
         self.scaler.update()
@@ -156,30 +130,37 @@ class BaseClassificationExperiment(object) :
 
     def transform_generator(self, mode):
         if mode == 'train' :
-            train_transform_list = [
-                transforms.RandomHorizontalFlip(),
+            transform_list = [
                 transforms.Resize((self.args.image_size, self.args.image_size)),
-                transforms.RandomCrop(self.args.image_size, padding=self.args.crop_padding),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomRotation((-5, 5), expand=False),
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
             ]
 
-            return transforms.Compose(train_transform_list)
-        elif mode == 'test' :
-            test_transform_list = [
+            target_transform_list = [
+                transforms.Resize((self.args.image_size, self.args.image_size)),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomRotation((-5, 5), expand=False),
+                transforms.ToTensor(),
+            ]
+
+        else :
+            transform_list = [
                 transforms.Resize((self.args.image_size, self.args.image_size)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
             ]
 
-            return transforms.Compose(test_transform_list)
+            target_transform_list = [
+                transforms.Resize((self.args.image_size, self.args.image_size)),
+                transforms.ToTensor(),
+
+            ]
+
+        return transforms.Compose(transform_list), transforms.Compose(target_transform_list)
 
     def history_generator(self):
         self.history = dict()
         self.history['train_loss'] = list()
-        self.history['train_top1_acc'] = list()
-        self.history['train_top5_acc'] = list()
-
-        self.history['test_loss'] = list()
-        self.history['test_top1_acc'] = list()
-        self.history['test_top5_acc'] = list()
+        self.history['val_loss'] = list()

@@ -1,0 +1,14 @@
+model_name: WRN_40_2
+  dataset: CIFAR10, CIFAR100, STL10
+    batch_size: 128
+    criterion: CCE
+    epoch: 200
+    optimizer_name: SGD
+      learning_rate: 1e-1
+      momentum: 0.9
+      weight_decay: 0.0005
+    LRS_name: CALRS
+      initial_learning_rate: 1e-1
+      terminal_learning_rate: 1e-6
+
+plot_loss_configuration_path: TwoDIC/configuration_files/plot_configurations/plot_loss_configuration.yml

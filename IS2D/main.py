@@ -2,6 +2,7 @@
 # Distributed Data Parallel 코드 https://dbwp031.tistory.com/32
 import os
 import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import argparse
 import builtins
 import warnings
@@ -10,14 +11,12 @@ warnings.filterwarnings('ignore')
 import torch
 import torch.multiprocessing as mp
 
-from Experiment.image_classification_experiment import ImageNetExperiment
-# puzzle = __import__('8puzzle')
+from common.utils.save_functions import save_result
+from IS2D_Experiment.benchmark_2dimage_segmentation_experiment import ImageSegmentationExperiment
 
-def IC2D_main(args) :
-    print("Hello! We start experiment for 2D Image Classification!")
+def IS2D_main(args) :
+    print("Hello! We start experiment for 2D Image Segmentation!")
     print("Distributed Data Parallel {}".format(args.multiprocessing_distributed))
-
-    # dataset_rootdir = os.path.join('..', args.data_path)
 
     try:
         dataset_dir = os.path.join(args.data_path, args.data_type)
@@ -27,22 +26,10 @@ def IC2D_main(args) :
         sys.exit()
 
     args.dataset_dir = dataset_dir
-    if args.data_type == 'ImageNet':
-        args.image_size = 224
+    if args.data_type in ['CVC-ClinicDB', 'Kvasir-SEG', 'BKAI-IGH-NeoPolyp'] :
+        args.image_size = 256
         args.num_channels = 3
-        args.num_classes = 1000
-        args.crop_padding = 32
-    elif args.data_type == 'CIFAR10' or args.data_type == 'CIFAR100':
-        args.image_size = 32
-        args.num_channels = 3
-        if args.data_type == 'CIFAR10': args.num_classes = 10
-        elif args.data_type == 'CIFAR100': args.num_classes = 100
-        args.crop_padding = 4
-    elif args.data_type == 'STL10':
-        args.image_size = 96
-        args.num_channels = 3
-        args.num_classes = 10
-        args.crop_padding = 12
+        args.num_classes = 1
 
     args.distributed = False
     if args.multiprocessing_distributed and args.train:
@@ -52,8 +39,10 @@ def IC2D_main(args) :
 
         mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))
     else :
-        experiment = ImageNetExperiment(args)
-        experiment.fit()
+        experiment = ImageSegmentationExperiment(args)
+        if args.train:
+            model, optimizer, scheduler, history, test_result, metric_list = experiment.fit()
+            save_result(args, model, optimizer, scheduler, history, test_result, args.final_epoch, best_results=None, metric_list=metric_list)
 
 def main_worker(gpu,ngpus_per_node, args):
     # 내용1 :gpu 설정
@@ -75,19 +64,16 @@ def main_worker(gpu,ngpus_per_node, args):
         torch.distributed.init_process_group(backend=args.dist_backend,init_method=args.dist_url,
                                             world_size=args.world_size,rank=args.rank)
 
-    experiment = ImageNetExperiment(args)
+    experiment = ImageSegmentationExperiment(args)
     if args.train: experiment.fit()
 
 if __name__=='__main__' :
     parser = argparse.ArgumentParser(description='Following are the arguments that can be passed form the terminal itself!')
-    parser.add_argument('--data_path', type=str, default='/media/jhnam0514/68334fe0-2b83-45d6-98e3-76904bf08127/home/namjuhyeon/Desktop/LAB/common material/Dataset Collection')
-    parser.add_argument('--data_type', type=str, required=True, choices=['ImageNet', 'CIFAR10', 'CIFAR100', 'STL10'])
-    parser.add_argument('--model_name', type=str, required=True, choices=['VGG11', 'VGG13', 'VGG16', 'VGG19',
-                                                                          'ResNet_18', 'ResNet_34', 'ResNet_50', 'ResNet_101',
-                                                                          'DenseNet_121',
-                                                                          'WRN_28_10', 'WRN_40_2'])
+    parser.add_argument('--data_path', type=str, default='/media/jhnam0514/68334fe0-2b83-45d6-98e3-76904bf08127/home/namjuhyeon/Desktop/LAB/AwesomeDeepLearning/dataset/IS2D_dataset')
+    parser.add_argument('--data_type', type=str, required=True, choices=['CVC-ClinicDB', 'Kvasir-SEG', 'BKAI-IGH-NeoPolyp'])
+    parser.add_argument('--model_name', type=str, required=True, choices=['FCN', 'UNet', 'UNet++', 'DeepLabV3+'])
     parser.add_argument('--num_workers', type=int, default=4, help='number of workers')
-    parser.add_argument('--save_path', type=str, default='/media/jhnam0514/68334fe0-2b83-45d6-98e3-76904bf08127/home/namjuhyeon/Desktop/LAB/AwesomeDeepLearning/IC2D')
+    parser.add_argument('--save_path', type=str, default='/media/jhnam0514/68334fe0-2b83-45d6-98e3-76904bf08127/home/namjuhyeon/Desktop/LAB/AwesomeDeepLearning/model_weights/IS2D_model_weights')
     parser.add_argument('--save_cpt_interval', type=int, default=None)
     parser.add_argument('--train', default=False, action='store_true')
     parser.add_argument('--reproducibility', default=False, action='store_true')
@@ -108,12 +94,11 @@ if __name__=='__main__' :
     parser.add_argument('--criterion', type=str, default='CCE', choices=['CCE', 'BCE'])
     parser.add_argument('--start_epoch', type=int, default=1)
     parser.add_argument('--final_epoch', type=int, default=200)
-    parser.add_argument('--linear_node', type=int, default=4096)
     parser.add_argument('--augment', type=str, default='original', choices=['original', 'MixUp', 'CutOut', 'CutMix', 'RICAP', 'APR'])
 
     # Optimizer Configuration
-    parser.add_argument('--optimizer_name', type=str, default='SGD')
-    parser.add_argument('--lr', type=float, default=1e-1)
+    parser.add_argument('--optimizer_name', type=str, default='Adam')
+    parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=0.0005)
 
@@ -125,6 +110,6 @@ if __name__=='__main__' :
 
     args = parser.parse_args()
 
-    # for model_name in ['VGG13', 'VGG16', 'VGG19', 'ResNet_18', 'ResNet_34', 'ResNet_50', 'ResNet_101', 'DenseNet_121', 'WRN_28_10', 'WRN_40_2']:
-    #     args.model_name = model_name
-    IC2D_main(args)
+    for data_type in ['CVC-ClinicDB', 'Kvasir-SEG', 'BKAI-IGH-NeoPolyp']:
+        args.data_type = data_type
+        IS2D_main(args)

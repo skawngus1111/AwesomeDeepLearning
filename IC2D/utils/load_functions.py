@@ -4,7 +4,7 @@ import torch
 
 import pandas as pd
 
-from .get_functions import get_save_path
+from common.utils.get_functions import get_save_path
 
 def load_model(args, model) :
     model_dirs = get_save_path(args)

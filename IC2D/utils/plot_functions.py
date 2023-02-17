@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def plot_loss_acc(history, model_dirs):
-    params = yaml.safe_load(open(f'TwoDIC/configuration_files/plot_configurations/plot_loss_configuration.yml'))
+    params = yaml.safe_load(open(f'IC2D/configuration_files/plot_configurations/plot_loss_configuration.yml'))
 
     train_loss, test_loss = history['train_loss'], history['test_loss']
     train_top1_acc, test_top1_acc = history['train_top1_acc'], history['test_top1_acc']

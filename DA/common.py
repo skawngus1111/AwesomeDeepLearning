@@ -1,35 +1,19 @@
-import torch.nn as nn
+import numpy as np
 
-from .augmentation_forward import *
-from .augmentation_criterion import *
+def rand_bbox(size, lam):
+    W = size[2]
+    H = size[3]
+    cut_rat = np.sqrt(1. - lam)
+    cut_w = np.int32(W * cut_rat)
+    cut_h = np.int32(H * cut_rat)
 
-class DataAugmentationForward(nn.Module):
-    def __init__(self, args, device):
-        super(DataAugmentationForward, self).__init__()
+    # uniform
+    cx = np.random.randint(W)
+    cy = np.random.randint(H)
 
-        self.args = args
-        self.device = device
-        self.augment_forward = self.get_augment_forward(args.augment)
+    bbx1 = np.clip(cx - cut_w // 2, 0, W)
+    bby1 = np.clip(cy - cut_h // 2, 0, H)
+    bbx2 = np.clip(cx + cut_w // 2, 0, W)
+    bby2 = np.clip(cy + cut_h // 2, 0, H)
 
-    def forward(self, image, target):
-        if self.args.distributed: image, target = image.cuda(), target.cuda()
-        else: image, target = image.to(self.device), target.to(self.device)
-
-        return self.augment_forward(image, target)
-
-    def get_augment_forward(self, augment):
-        if augment == 'original': return normal_forward
-        elif augment == 'MixUp': return mixup_forward
-
-class DataAugmentationCriterion(nn.Module):
-    def __init__(self, augment='original'):
-        super(DataAugmentationCriterion, self).__init__()
-
-        self.augment_criterion = self.get_augment_criterion(augment)
-
-    def forward(self, criterion, output, augment_etc):
-        return self.augment_criterion(criterion, output, augment_etc)
-
-    def get_augment_criterion(self, augment):
-        if augment == 'original': return normal_criterion
-        elif augment == 'MixUp': return mixup_criterion
+    return bbx1, bby1, bbx2, bby2

@@ -1,4 +1,3 @@
-import sys
 from time import time
 
 import torch
@@ -7,8 +6,8 @@ import numpy as np
 from tqdm import tqdm
 
 from ._base import BaseClassificationExperiment
-from utils.save_functions import save_result
-from utils.calculate_metrics import calculate_top1_error, calculate_top5_error
+from common.utils.save_functions import save_result
+from common.utils.calculate_metrics import calculate_top1_error, calculate_top5_error
 
 class ImageNetExperiment(BaseClassificationExperiment) :
     def __init__(self, args):
@@ -66,12 +65,15 @@ class ImageNetExperiment(BaseClassificationExperiment) :
         total_loss, total = 0., 0
         correct_top1, correct_top5 = 0, 0
 
-        for batch_idx, (image, target) in tqdm(enumerate(self.train_loader)):
+        for batch_idx, (image, target) in enumerate(self.train_loader):
             loss, output, target = self.forward(image, target, mode='train')
             self.backward(loss)
 
             total_loss += loss.item() * image.size(0)
             total += image.size(0)
+
+            if self.args.augment == 'APR':
+                output = output[:image.size(0)]
 
             correct_top1 += calculate_top1_error(output, target)
             correct_top5 += calculate_top5_error(output, target)
