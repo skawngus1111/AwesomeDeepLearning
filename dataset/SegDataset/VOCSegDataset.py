@@ -49,12 +49,20 @@ if __name__=='__main__':
     num_classes = 21
     COLORS = np.random.randint(0, 2, size=(num_classes + 1, 3), dtype='uint8')
 
-    train_loader = DataLoader(train_ds, batch_size=2, shuffle=False)
+    train_loader = DataLoader(train_ds, batch_size=2, shuffle=True)
 
     import matplotlib.pyplot as plt
 
     for img, target in train_loader:
-        plt.imshow(np.transpose(img[0].cpu().detach().numpy(), (1, 2, 0)))
-        plt.show()
-        plt.imshow(target[0].squeeze().cpu().detach().numpy())
+        fig, ax = plt.subplots(1, 2)
+
+        ax[0].imshow(np.transpose(img[0].cpu().detach().numpy(), (1, 2, 0)))
+        ax[0].axis('off'); ax[0].set_xticks([]); ax[0].set_yticks([])
+
+        ax[1].imshow(target[0].squeeze().cpu().detach().numpy())
+        ax[1].axis('off'); ax[1].set_xticks([]); ax[1].set_yticks([])
+
+        plt.tight_layout()
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, hspace=0, wspace=0)
+
         plt.show()

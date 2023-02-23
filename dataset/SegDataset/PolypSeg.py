@@ -3,7 +3,6 @@ import random
 
 import torch
 from torch.utils.data import Dataset
-from torchvision.datasets import VOCSegmentation
 
 import pandas as pd
 from PIL import Image
