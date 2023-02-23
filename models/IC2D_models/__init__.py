@@ -16,6 +16,9 @@ def IC2D_model(model_name, linear_node, image_size, num_channels, num_classes) :
     elif model_name == 'VGG19' :
         from models.IC2D_models.vgg import vgg19
         return vgg19(image_size, linear_node, num_channels, num_classes)
+    elif model_name == 'GooLeNet':
+        from models.IC2D_models.googlenet import GoogLeNet
+        return GoogLeNet(image_size, num_channels, num_classes)
     elif model_name == 'ResNet_18':
         from models.IC2D_models.resnet import resnet18
         return resnet18(num_classes, num_channels)

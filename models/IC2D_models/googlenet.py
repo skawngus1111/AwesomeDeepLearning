@@ -111,7 +111,7 @@ class GoogLeNet(nn.Module):
         out5 = self.fc(out5)
 
 
-        return out5, aux_out1, aux_out2
+        return out5#, aux_out1, aux_out2
 
 if __name__=="__main__":
     import torch

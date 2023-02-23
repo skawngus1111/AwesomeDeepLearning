@@ -1,6 +1,6 @@
 from .fcn import *
 
-def IS2D_model(model_name, image_size, num_channels, num_classes) :
+def IS2D_model(model_name, image_size, num_channels, num_classes, spectrum_ratio=0.1) :
     if model_name == 'FCN':
         from models.IS2D_models.fcn import fcn8s
         return fcn8s(num_classes)
@@ -13,3 +13,6 @@ def IS2D_model(model_name, image_size, num_channels, num_classes) :
     elif model_name == 'DeepLabV3+' :
         from models.IS2D_models.deeplabv3plus import DeepLabv3_plus
         return DeepLabv3_plus(nInputChannels=num_channels, n_classes=num_classes)
+    elif model_name == 'FrequencyUNet':
+        from models.IS2D_models.frequencyunet import FrequencyUNet
+        return FrequencyUNet(image_size, num_channels, num_classes, 64, spectrum_ratio=spectrum_ratio)
